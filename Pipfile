@@ -8,6 +8,8 @@ name = "pypi"
 [packages]
 
 requests-html = "*"
+flask = "*"
+gunicorn = "*"
 
 
 [dev-packages]

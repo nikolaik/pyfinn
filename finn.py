@@ -1,5 +1,3 @@
-from pprint import pprint
-
 import sys
 from requests_html import HTMLSession
 
@@ -26,11 +24,23 @@ def _list_to_vals(r, data, selector):
         data[key] = _clean(a.text)
 
 
-def scrape_ad(url):
+def scrape_ad(url=None, code=None):
+    assert url is not None or code is not None
+
+    if url is None:
+        url = 'https://www.finn.no/realestate/homes/ad.html?finnkode={code}'.format(code=code)
     r = session.get(url)
+
+    r.raise_for_status()
+
+    postal_address_element = r.html.find('h1 + p', first=True)
+    price_element = r.html.find('h1 + p + dl > dd', first=True)
+    if not price_element or not postal_address_element:
+        return
+
     ad_data = {
-        'Postaddresse': r.html.find('h1 + p', first=True).text,
-        'Prisantydning': _clean(r.html.find('h1 + p + dl > dd', first=True).text)
+        'Postaddresse': postal_address_element.text,
+        'Prisantydning': _clean(price_element.text)
     }
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl + dl')
