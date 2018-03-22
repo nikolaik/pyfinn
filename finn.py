@@ -29,6 +29,8 @@ def scrape_ad(url=None, code=None):
 
     if url is None:
         url = 'https://www.finn.no/realestate/homes/ad.html?finnkode={code}'.format(code=code)
+    else:
+        pass # TODO: Validate params
     r = session.get(url)
 
     r.raise_for_status()
