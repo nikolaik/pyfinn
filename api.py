@@ -14,7 +14,7 @@ cache_duration = 23 * 60 * 60
 
 @app.route('/', methods=['GET'])
 def ad_detail():
-    finnkode = request.args.get('ad')
+    finnkode = request.args.get('finnkode')
     if not finnkode or not finnkode.isdigit():
         return jsonify(**{'error': 'Missing or invalid param finnkode. Try /?finnkode=KODE'})
 
