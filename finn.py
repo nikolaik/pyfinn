@@ -1,8 +1,11 @@
 import sys
+
+from fake_useragent import UserAgent
 from requests_html import HTMLSession
 
 
 session = HTMLSession()
+ua = UserAgent()
 
 
 def _clean(text):
@@ -24,14 +27,9 @@ def _list_to_vals(r, data, selector):
         data[key] = _clean(a.text)
 
 
-def scrape_ad(url=None, code=None):
-    assert url is not None or code is not None
-
-    if url is None:
-        url = 'https://www.finn.no/realestate/homes/ad.html?finnkode={code}'.format(code=code)
-    else:
-        pass # TODO: Validate params
-    r = session.get(url)
+def scrape_ad(finnkode):
+    url = 'https://www.finn.no/realestate/homes/ad.html?finnkode={code}'.format(code=finnkode)
+    r = session.get(url, user_agent=ua.random)
 
     r.raise_for_status()
 
@@ -42,7 +40,8 @@ def scrape_ad(url=None, code=None):
 
     ad_data = {
         'Postaddresse': postal_address_element.text,
-        'Prisantydning': _clean(price_element.text)
+        'Prisantydning': _clean(price_element.text),
+        'url': url
     }
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl + dl')

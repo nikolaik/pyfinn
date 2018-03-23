@@ -10,6 +10,8 @@ name = "pypi"
 requests-html = "*"
 flask = "*"
 gunicorn = "*"
+redis = "*"
+fake-useragent = "*"
 
 
 [dev-packages]

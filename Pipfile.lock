@@ -1,20 +1,20 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "db03c5572f1fda747d5863373107a032f77eaa4cf15a4106db9a37b7eda19cf6"
+            "sha256": "1adc2049acbdeaf46f5fdaf2374ae1cd320a79184fa2e0b5c54f048f016f4376"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
-            "implementation_version": "3.6.3",
+            "implementation_version": "3.6.4",
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "4.13.0-36-generic",
-            "platform_system": "Linux",
-            "platform_version": "#40-Ubuntu SMP Fri Feb 16 20:07:48 UTC 2018",
-            "python_full_version": "3.6.3",
+            "platform_release": "17.4.0",
+            "platform_system": "Darwin",
+            "platform_version": "Darwin Kernel Version 17.4.0: Sun Dec 17 09:19:54 PST 2017; root:xnu-4570.41.2~1/RELEASE_X86_64",
+            "python_full_version": "3.6.4",
             "python_version": "3.6",
-            "sys_platform": "linux"
+            "sys_platform": "darwin"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -163,9 +163,9 @@
         },
         "pyppeteer": {
             "hashes": [
-                "sha256:6d2687ffaa6258e06798309af77c772f8be1dcf741f2e3d5b81d543cd85b9c4c"
+                "sha256:caedc32a9067df9f22370deb89d6167b9d63ae97adcff0c9cdd9c4d3c2f8b09e"
             ],
-            "version": "==0.0.15"
+            "version": "==0.0.16"
         },
         "pyquery": {
             "hashes": [
@@ -173,6 +173,13 @@
                 "sha256:4771db76bd14352eba006463656aef990a0147a0eeaf094725097acfa90442bf"
             ],
             "version": "==1.4.0"
+        },
+        "redis": {
+            "hashes": [
+                "sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb",
+                "sha256:a22ca993cea2962dbb588f9f30d0015ac4afcc45bee27d3978c0dbe9e97c6c0f"
+            ],
+            "version": "==2.10.6"
         },
         "requests": {
             "hashes": [

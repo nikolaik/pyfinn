@@ -1,19 +1,32 @@
+import json
+
+import redis
+import os
 from flask import Flask, request, jsonify
 
 from finn import scrape_ad
 
 app = Flask(__name__)
 
+redis_service = redis.from_url(os.environ.get('REDIS_URL', 'redis://localhost:6379/0'))
+cache_duration = 23 * 60 * 60
+
 
 @app.route('/', methods=['GET'])
 def ad_detail():
-    ad_url = request.args.get('ad')
-    if not ad_url:
-        return jsonify(**{'error': 'Missing param ad. Try /?ad=https://www.finn.no/realestate/homes/ad.html&quest;finnkode=KODE'})
+    finnkode = request.args.get('ad')
+    if not finnkode or not finnkode.isdigit():
+        return jsonify(**{'error': 'Missing or invalid param finnkode. Try /?finnkode=KODE'})
 
-    ad = scrape_ad(ad_url)
+    cache_key = 'finn-ad:{}'.format(finnkode)
+    ad = redis_service.get(cache_key)
+    if not ad:
+        ad = scrape_ad(finnkode)
+        redis_service.set(cache_key, json.dumps(ad), cache_duration)
+    else:
+        ad = json.loads(ad)
 
-    return jsonify(ad=ad, url=ad_url)
+    return jsonify(ad=ad)
 
 
 if __name__ == '__main__':
