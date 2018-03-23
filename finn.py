@@ -29,7 +29,7 @@ def _list_to_vals(r, data, selector):
 
 def scrape_ad(finnkode):
     url = 'https://www.finn.no/realestate/homes/ad.html?finnkode={code}'.format(code=finnkode)
-    r = session.get(url, user_agent=ua.random)
+    r = session.get(url, headers={'user-agent': ua.random})
 
     r.raise_for_status()
 
