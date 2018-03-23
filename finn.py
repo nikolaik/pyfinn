@@ -22,9 +22,9 @@ def _list_to_vals(r, data, selector):
     values_list = r.html.find(selector, first=True).find('dt, dd')
     values_list = iter(values_list)
     for a in values_list:
-        k = a.text
+        key = a.text
         a = next(values_list)
-        data[k.lower()] = _clean(a.text)
+        data[key] = _clean(a.text)
 
 
 def scrape_ad(finnkode):
@@ -39,8 +39,8 @@ def scrape_ad(finnkode):
         return
 
     ad_data = {
-        'postaddresse': postal_address_element.text,
-        'prisantydning': _clean(price_element.text),
+        'Postaddresse': postal_address_element.text,
+        'Prisantydning': _clean(price_element.text),
         'url': url
     }
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
