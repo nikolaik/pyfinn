@@ -39,7 +39,7 @@ def scrape_ad(finnkode):
         return
 
     ad_data = {
-        'Postaddresse': postal_address_element.text,
+        'Postadresse': postal_address_element.text,
         'Prisantydning': _clean(price_element.text),
         'url': url
     }
