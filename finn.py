@@ -56,14 +56,17 @@ def scrape_ad(finnkode):
     if not price_element or not postal_address_element:
         return
 
-    viewings = _viewings(r)
     ad_data = {
         'Postadresse': postal_address_element.text,
         'Prisantydning': _clean(price_element.text),
-        'Visningsdatoer': viewings,
         'url': url
     }
-    ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
+
+    viewings = _viewings(r)
+    if viewings:
+        ad_data['Visningsdatoer'] = viewings,
+        ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
+
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl + dl')
 
