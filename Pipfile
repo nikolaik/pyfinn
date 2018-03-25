@@ -12,6 +12,7 @@ flask = "*"
 gunicorn = "*"
 redis = "*"
 fake-useragent = "*"
+dateparser = "*"
 
 
 [dev-packages]
