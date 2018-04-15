@@ -8,8 +8,8 @@ from finn import scrape_ad
 
 app = Flask(__name__)
 
-redis_service = redis.from_url(os.environ.get('REDIS_URL', 'redis://localhost:6379/0'))
-cache_duration = 23 * 60 * 60
+redis_service = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
+cache_duration = int(os.getenv('CACHE_DURATION_SECONDS', 23 * 60 * 60))
 
 
 @app.route('/', methods=['GET'])
@@ -30,4 +30,4 @@ def ad_detail():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
