@@ -21,4 +21,4 @@ Hit the button below to create your own. You need a free Heroku account.
 - `CACHE_DURATION_SECONDS` How long we cache ad data. Default: `23 * 60 * 60` seconds.
 
 ## TODO
-- Add example of usage with Google Sheets/App Scripts
+- Add example usage with Google Sheets/App Scripts
