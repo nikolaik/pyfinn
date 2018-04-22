@@ -28,7 +28,7 @@ def _list_to_vals(r, data, selector):
         data[key] = _clean(a.text)
 
 
-def _viewings(r):
+def _scrape_viewings(r):
     viewings = []
     els = r.html.find('.hide-lt768 time')
     for el in els:
@@ -62,9 +62,9 @@ def scrape_ad(finnkode):
         'url': url
     }
 
-    viewings = _viewings(r)
+    viewings = _scrape_viewings(r)
     if viewings:
-        ad_data['Visningsdatoer'] = viewings,
+        ad_data['Visningsdatoer'] = viewings
         ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
 
     _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
