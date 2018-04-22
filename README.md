@@ -17,7 +17,8 @@ Hit the button below to create your own. You need a free Heroku account.
 
 ## Configuration
 
-- `CACHE_DURATION_SECONDS` default: 23 * 60 * 60
+- `REDIS_URL` URL to to Redis instance. Default: `redis://localhost:6379/0`
+- `CACHE_DURATION_SECONDS` How long we cache ad data. Default: `23 * 60 * 60` seconds.
 
 ## TODO
 - Add example of usage with Google Sheets/App Scripts
