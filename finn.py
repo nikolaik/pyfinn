@@ -20,7 +20,8 @@ def _clean(text):
 
 
 def _list_to_vals(r, data, selector):
-    values_list = r.html.find(selector, first=True).find('dt, dd')
+    obj = r.html.find(selector, first=True)
+    values_list = obj.find('dt, dd')
     values_list = iter(values_list)
     for a in values_list:
         key = a.text
@@ -52,7 +53,9 @@ def scrape_ad(finnkode):
     r.raise_for_status()
 
     postal_address_element = r.html.find('h1 + p', first=True)
-    price_element = r.html.find('h1 + p + dl > dd', first=True)
+
+    price_element = r.html.find('h1 + p + div > div > dl > dd', first=True)
+
     if not price_element or not postal_address_element:
         return
 
@@ -61,14 +64,14 @@ def scrape_ad(finnkode):
         'Prisantydning': _clean(price_element.text),
         'url': url
     }
-
+    
     viewings = _scrape_viewings(r)
     if viewings:
         ad_data['Visningsdatoer'] = viewings
         ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
 
-    _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
-    _list_to_vals(r, ad_data, 'h1 + p + dl + dl + dl')
+    _list_to_vals(r, ad_data, 'h1 + p + div > div > dl + dl + dl')
+    _list_to_vals(r, ad_data, 'body > div > div > div > div > div > div > div > dl')
 
     return ad_data
 
