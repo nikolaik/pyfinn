@@ -1,3 +1,4 @@
+import json
 import sys
 
 import dateparser
@@ -19,18 +20,23 @@ def _clean(text):
     return text
 
 
-def _list_to_vals(r, data, selector):
-    values_list = r.html.find(selector, first=True).find('dt, dd')
-    values_list = iter(values_list)
-    for a in values_list:
-        key = a.text
-        a = next(values_list)
-        data[key] = _clean(a.text)
+def _parse_data_lists(html):
+    data = {}
+
+    data_lists = html.find('.page dl')
+    for el in data_lists:
+        values_list = iter(el.find('dt, dd'))
+        for a in values_list:
+            _key = a.text
+            a = next(values_list)
+            data[_key] = _clean(a.text)
+
+    return data
 
 
-def _scrape_viewings(r):
+def _scrape_viewings(html):
     viewings = []
-    els = r.html.find('.hide-lt768 time')
+    els = html.find('.hide-lt768 time')
     for el in els:
         # Ninja parse dt range string in norwegian locale. Example: "søndag 08. april, kl. 13:00–14:00"
         split_space = el.text.strip().split(' ')
@@ -51,24 +57,23 @@ def scrape_ad(finnkode):
 
     r.raise_for_status()
 
-    postal_address_element = r.html.find('h1 + p', first=True)
-    price_element = r.html.find('h1 + p + dl > dd', first=True)
-    if not price_element or not postal_address_element:
+    html = r.html
+
+    postal_address_element = html.find('h1 + p', first=True)
+    if not postal_address_element:
         return
 
     ad_data = {
         'Postadresse': postal_address_element.text,
-        'Prisantydning': _clean(price_element.text),
         'url': url
     }
 
-    viewings = _scrape_viewings(r)
+    viewings = _scrape_viewings(html)
     if viewings:
         ad_data['Visningsdatoer'] = viewings
         ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
 
-    _list_to_vals(r, ad_data, 'h1 + p + dl + dl')
-    _list_to_vals(r, ad_data, 'h1 + p + dl + dl + dl')
+    ad_data.update(_parse_data_lists(html))
 
     return ad_data
 
@@ -80,5 +85,4 @@ if __name__ == '__main__':
 
     ad_url = sys.argv[1]
     ad = scrape_ad(ad_url)
-    for key, value in ad.items():
-        print('{}:\t{}'.format(key, value))
+    print(json.dumps(ad, indent=2, ensure_ascii=False))
