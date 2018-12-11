@@ -54,6 +54,12 @@ def _scrape_viewings(html):
     return list(viewings)
 
 
+def _parse_price(html):
+    label, parent, *rest = html.find('*', containing='Prisantydning')
+    tag = label.pq[0].tag
+    return _clean(parent.find(f'{tag} + {tag}', first=True).text)
+
+
 def scrape_ad(finnkode):
     url = 'https://www.finn.no/realestate/homes/ad.html?finnkode={code}'.format(code=finnkode)
     r = session.get(url, headers={'user-agent': ua.random})
@@ -68,7 +74,8 @@ def scrape_ad(finnkode):
 
     ad_data = {
         'Postadresse': postal_address_element.text,
-        'url': url
+        'Prisantydning': _parse_price(html),
+        'url': url,
     }
 
     viewings = _scrape_viewings(html)
