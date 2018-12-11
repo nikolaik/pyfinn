@@ -22,21 +22,24 @@ def _clean(text):
 
 def _parse_data_lists(html):
     data = {}
+    skip_keys = ['Mobil', 'Fax']  # Unhandled data list labels
 
-    data_lists = html.find('.page dl')
+    data_lists = html.find('dl')
     for el in data_lists:
         values_list = iter(el.find('dt, dd'))
         for a in values_list:
             _key = a.text
             a = next(values_list)
+            if _key in skip_keys:
+                continue
             data[_key] = _clean(a.text)
 
     return data
 
 
 def _scrape_viewings(html):
-    viewings = []
-    els = html.find('.hide-lt768 time')
+    viewings = set()
+    els = html.find('time')
     for el in els:
         # Ninja parse dt range string in norwegian locale. Example: "søndag 08. april, kl. 13:00–14:00"
         split_space = el.text.strip().split(' ')
@@ -47,8 +50,8 @@ def _scrape_viewings(html):
         dt = dateparser.parse(date, languages=['nb'])
         if dt:
             # dt = dt.replace(hour=int(start_hour), minute=int(start_min))
-            viewings.append(dt.date().isoformat())
-    return viewings
+            viewings.add(dt.date().isoformat())
+    return list(viewings)
 
 
 def scrape_ad(finnkode):
