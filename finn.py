@@ -11,7 +11,7 @@ ua = UserAgent()
 
 
 def _clean(text):
-    text = text.replace('\xa0', ' ').replace(',-', '').replace(' m²', '')
+    text = text.replace('\xa0', ' ').replace(',-', '').replace(' m²', '').replace('kr', '')
     try:
         text = int(text.replace(' ', ''))
     except ValueError:
@@ -54,10 +54,10 @@ def _scrape_viewings(html):
     return list(viewings)
 
 
-def _parse_price(html):
-    label, parent, *rest = html.find('*', containing='Prisantydning')
-    tag = label.pq[0].tag
-    return _clean(parent.find(f'{tag} + {tag}', first=True).text)
+def _calc_price(ad_data):
+    debt = ad_data.get('Fellesgjeld', 0)
+    cost = ad_data.get('Omkostninger', 0)
+    return ad_data['Totalpris'] - debt - cost
 
 
 def scrape_ad(finnkode):
@@ -74,7 +74,6 @@ def scrape_ad(finnkode):
 
     ad_data = {
         'Postadresse': postal_address_element.text,
-        'Prisantydning': _parse_price(html),
         'url': url,
     }
 
@@ -84,6 +83,8 @@ def scrape_ad(finnkode):
         ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
 
     ad_data.update(_parse_data_lists(html))
+
+    ad_data['Prisantydning'] = _calc_price(ad_data)
 
     return ad_data
 
