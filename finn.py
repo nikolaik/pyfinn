@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 
 import dateparser
@@ -11,9 +12,9 @@ ua = UserAgent()
 
 
 def _clean(text):
-    text = text.replace('\xa0', ' ').replace(',-', '').replace(' m²', '').replace('kr', '')
+    text = text.replace('\xa0', ' ').replace(',-', '').replace(' m²', '')
     try:
-        text = int(text.replace(' ', ''))
+        text = int(re.sub(r'kr$', '', text).replace(' ', ''))
     except ValueError:
         pass
 
