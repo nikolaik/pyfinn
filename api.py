@@ -18,7 +18,7 @@ def ad_detail():
     if not finnkode or not finnkode.isdigit():
         return jsonify(**{'error': 'Missing or invalid param finnkode. Try /?finnkode=KODE'})
 
-    cache_key = 'finn-ad:{}'.format(finnkode)
+    cache_key = f'finn-ad:{finnkode}'
     ad = redis_service.get(cache_key)
     if not ad:
         ad = scrape_ad(finnkode)

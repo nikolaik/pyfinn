@@ -12,7 +12,7 @@ Hit the button below to create your own. You need a free Heroku account.
 
 ## Installation
 
-    pipenv install --three
+    pipenv install
     docker run -d -p 6379:6379 redis
     pipenv run api.py
     open 'http://localhost:5000/'

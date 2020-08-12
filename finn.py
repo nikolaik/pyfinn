@@ -1,8 +1,9 @@
 import json
 import re
 import sys
+from datetime import datetime
+from urllib import parse
 
-import dateparser
 from fake_useragent import UserAgent
 from requests_html import HTMLSession
 
@@ -23,7 +24,8 @@ def _clean(text):
 
 def _parse_data_lists(html):
     data = {}
-    skip_keys = ['Mobil', 'Fax']  # Unhandled data list labels
+    days = ['Man.', 'Tir.', 'Ons.', 'Tors.', 'Fre', 'Lør.', 'Søn.']
+    skip_keys = ['Mobil', 'Fax', '', ] + days  # Unhandled data list labels
 
     data_lists = html.find('dl')
     for el in data_lists:
@@ -39,19 +41,14 @@ def _parse_data_lists(html):
 
 
 def _scrape_viewings(html):
+    # Find links to ICAL downloads
     viewings = set()
-    els = html.find('time')
-    for el in els:
-        # Ninja parse dt range string in norwegian locale. Example: "søndag 08. april, kl. 13:00–14:00"
-        split_space = el.text.strip().split(' ')
-        if len(split_space) < 5:
-            continue
-        date, time_range = ' '.join(split_space[1:]).replace(' kl. ', '').split(',')
-        # start_hour, start_min = time_range.split('–')[0].split(':')
-        dt = dateparser.parse(date, languages=['nb'])
+    calendar_url = [el.attrs["href"] for el in html.find('a[href*=".ics"]')]
+    for url in calendar_url:
+        query_params = dict(parse.parse_qsl(parse.urlsplit(url).query))
+        dt = datetime.strptime(query_params['iCalendarFrom'][:-1], '%Y%m%dT%H%M%S')
         if dt:
-            # dt = dt.replace(hour=int(start_hour), minute=int(start_min))
-            viewings.add(dt.date().isoformat())
+            viewings.add(dt.isoformat())
     return list(viewings)
 
 
@@ -80,12 +77,13 @@ def scrape_ad(finnkode):
 
     viewings = _scrape_viewings(html)
     if viewings:
-        ad_data['Visningsdatoer'] = viewings
-        ad_data.update({'Visningsdato {}'.format(i): v for i, v in enumerate(viewings, start=1)})
+        ad_data['Visninger'] = viewings
+        ad_data.update({'Visning {}'.format(i): v for i, v in enumerate(viewings, start=1)})
 
     ad_data.update(_parse_data_lists(html))
 
-    ad_data['Prisantydning'] = _calc_price(ad_data)
+    if 'Totalpris' in ad_data:
+        ad_data['Prisantydning'] = _calc_price(ad_data)
 
     return ad_data
 
@@ -95,6 +93,5 @@ if __name__ == '__main__':
         print('Invalid number of arguments.\n\nUsage:\n$ python finn.py FINNKODE')
         exit(1)
 
-    ad_url = sys.argv[1]
-    ad = scrape_ad(ad_url)
+    ad = scrape_ad(sys.argv[1])
     print(json.dumps(ad, indent=2, ensure_ascii=False))
