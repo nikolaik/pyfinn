@@ -1,0 +1,4 @@
+#!/bin/bash
+set -eu
+
+python -m pyfinn.api
