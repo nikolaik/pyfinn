@@ -6,7 +6,7 @@ Requests to finn.no uses a randomized user agent. The response data is cached (w
 
 Hit the button below to create your own. You need a free Heroku account.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nikolaik/pyfinn/tree/master)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nikolaik/pyfinn)
 
 ## Example usage
 
