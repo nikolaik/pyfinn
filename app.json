@@ -2,14 +2,6 @@
   "name": "pyfinn",
   "repository": "https://github.com/nikolaik/pyfinn",
   "env": {},
-  "buildpacks": [
-    {
-      "url": "https://github.com/moneymeets/python-poetry-buildpack.git"
-    },
-    {
-      "url": "heroku/python"
-    }
-  ],
   "addons": [
     "heroku-redis:hobby-dev"
   ],
