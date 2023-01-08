@@ -3,7 +3,7 @@
   "repository": "https://github.com/nikolaik/pyfinn",
   "env": {},
   "addons": [
-    "heroku-redis:hobby-dev"
+    "heroku-redis:mini"
   ],
   "success_url": "/"
 }
