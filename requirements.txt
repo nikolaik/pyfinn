@@ -32,6 +32,6 @@ tqdm==4.64.0; python_version >= "3.7" and python_version < "4.0" and python_full
 urllib3==1.26.9; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0" and python_version < "4")
 w3lib==1.22.0; python_full_version >= "3.6.0"
 websockets==10.3; python_version >= "3.7" and python_version < "4.0" and python_full_version >= "3.6.0"
-werkzeug==2.1.2; python_version >= "3.7"
+werkzeug==2.2.3; python_version >= "3.7"
 wrapt==1.14.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 zipp==3.8.0; python_version < "3.10" and python_version >= "3.7" and python_full_version >= "3.6.0"
