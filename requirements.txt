@@ -25,7 +25,7 @@ pyppeteer==1.0.2; python_version >= "3.7" and python_version < "4.0" and python_
 pyquery==1.4.3; python_full_version >= "3.6.0"
 redis==4.4.4; python_version >= "3.6"
 requests-html==0.10.0; python_full_version >= "3.6.0"
-requests==2.27.1; python_full_version >= "3.6.0"
+requests==2.31.0; python_full_version >= "3.6.0"
 six==1.16.0; python_full_version >= "3.6.0"
 soupsieve==2.3.2.post1; python_version >= "3.6" and python_full_version >= "3.6.0"
 tqdm==4.64.0; python_version >= "3.7" and python_version < "4.0" and python_full_version >= "3.6.0"
