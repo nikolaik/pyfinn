@@ -18,13 +18,13 @@ def ad_detail():
     if not finnkode or not finnkode.isdigit():
         return jsonify(**{"error": "Missing or invalid param finnkode. Try /?finnkode=KODE"})
 
-    cache_key = f"finn-ad:{finnkode}"
+    cache_key = f"finn-ad-v2:{finnkode}"
     ad = redis_service.get(cache_key)
     if not ad:
         url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={finnkode}"
         html = fetch_ad(url)
         ad = scrape_ad(html)
-        redis_service.set(cache_key, json.dumps(ad), cache_duration)
+        redis_service.set(cache_key, json.dumps({"url": url} | ad), cache_duration)
     else:
         ad = json.loads(ad)
 
