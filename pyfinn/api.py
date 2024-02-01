@@ -4,7 +4,7 @@ import redis
 import os
 from flask import Flask, request, jsonify
 
-from pyfinn import scrape_ad
+from pyfinn import fetch_ad, scrape_ad
 
 app = Flask(__name__)
 
@@ -21,7 +21,9 @@ def ad_detail():
     cache_key = f"finn-ad:{finnkode}"
     ad = redis_service.get(cache_key)
     if not ad:
-        ad = scrape_ad(finnkode)
+        url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={finnkode}"
+        html = fetch_ad(url)
+        ad = scrape_ad(html)
         redis_service.set(cache_key, json.dumps(ad), cache_duration)
     else:
         ad = json.loads(ad)

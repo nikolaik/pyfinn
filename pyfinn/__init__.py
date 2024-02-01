@@ -1,15 +1,24 @@
+import argparse
+import io
 import json
+import logging
 import re
-import sys
 from datetime import datetime
+import sys
 from urllib import parse
 
 from fake_useragent import UserAgent
-from requests_html import HTMLSession
+from requests_html import HTMLSession, HTML
 
 
 session = HTMLSession()
 ua = UserAgent()
+
+logger = logging.getLogger("pyfinn")
+handler = logging.StreamHandler()
+formatter = logging.Formatter(fmt="%(levelname)s: %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def _clean(text):
@@ -22,7 +31,7 @@ def _clean(text):
     return text
 
 
-def _parse_data_lists(html):
+def _parse_data_lists(html: HTML) -> dict:
     data = {}
     days = ["Man.", "Tir.", "Ons.", "Tors.", "Fre", "Lør.", "Søn."]
     skip_keys = ["Mobil", "Fax", ""] + days  # Unhandled data list labels
@@ -40,7 +49,7 @@ def _parse_data_lists(html):
     return data
 
 
-def _scrape_viewings(html):
+def _scrape_viewings(html: HTML) -> list[str]:
     # Find links to ICAL downloads
     viewings = set()
     calendar_url = [el.attrs["href"] for el in html.find('a[href*=".ics"]')]
@@ -52,27 +61,25 @@ def _scrape_viewings(html):
     return sorted(list(viewings))
 
 
-def _calc_price(ad_data):
+def _calc_price(ad_data: dict) -> int:
     debt = ad_data.get("Fellesgjeld", 0)
     cost = ad_data.get("Omkostninger", 0)
     return ad_data["Totalpris"] - debt - cost
 
 
-def scrape_ad(finnkode):
-    url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={finnkode}"
+def fetch_ad(url: str) -> HTML:
     r = session.get(url, headers={"user-agent": ua.random})
-
     r.raise_for_status()
+    return r.html
 
-    html = r.html
 
-    postal_address_element = html.find("h1 + p", first=True)
+def scrape_ad(html: HTML) -> dict:
+    postal_address_element = html.find('[data-testid="object-address"]', first=True)
     if not postal_address_element:
-        return
+        return {}
 
     ad_data = {
         "Postadresse": postal_address_element.text,
-        "url": url,
     }
 
     viewings = _scrape_viewings(html)
@@ -88,10 +95,29 @@ def scrape_ad(finnkode):
     return ad_data
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Invalid number of arguments.\n\nUsage:\n$ python finn.py FINNKODE")
-        exit(1)
+def main():
+    parser = argparse.ArgumentParser(description="Fetch real estate listing from finn.no and make available as JSON")
+    parser.add_argument("code")
+    parser.add_argument("--html-file", type=argparse.FileType())
+    args = parser.parse_args()
+    html_file: io.TextIOWrapper | None = args.html_file
+    code: str = args.code
 
-    ad = scrape_ad(sys.argv[1])
-    print(json.dumps(ad, indent=2, ensure_ascii=False))
+    url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={code}"
+    if html_file:
+        with html_file:
+            html_raw = html_file.read()
+            html = HTML(url=url, html=html_raw)
+    else:
+        html = fetch_ad(url)
+
+    ad_data = scrape_ad(html)
+    if not ad_data:
+        logger.warning("Could not find postal address element in HTML")
+    print(json.dumps({"url": url} | ad_data, indent=2, ensure_ascii=False))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

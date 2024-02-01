@@ -1,5 +1,5 @@
 __pycache__
 *.pyc
-test.html
+test*.html
 dist/
 .env

@@ -1,39 +1,31 @@
-import responses
-
 from pyfinn import scrape_ad
+from requests_html import HTML
 
 
-@responses.activate
-def test_scrape_ad(ad):
-    finnkode = "257069951"
-    responses.get(
-        f"https://www.finn.no/realestate/homes/ad.html?finnkode={finnkode}",
-        status=200,
-        body=ad,
-    )
-    res = scrape_ad(finnkode)
+def test_scrape_ad(ad_html):
+    res = scrape_ad(HTML(html=ad_html))
     assert res
     assert res == {
-        "Postadresse": "Thereses gate 35B, 0354 Oslo",
-        "url": "https://www.finn.no/realestate/homes/ad.html?finnkode=257069951",
-        "Visning 1": "2022-05-08T13:00:00",
-        "Visning 2": "2022-05-09T14:30:00",
-        "Visninger": ["2022-05-08T13:00:00", "2022-05-09T14:30:00"],
-        "Omkostninger": 12600,
-        "Totalpris": 3802600,
-        "Felleskost/mnd.": 3077,
         "Boligtype": "Leilighet",
-        "Eieform bolig": "Aksje",
-        "Soverom": 1,
-        "Primærrom": 30,
         "Bruksareal": 30,
-        "Etasje": 4,
-        "Byggeår": 1923,
-        "Energimerking": "F - mørkegrønn",
-        "Rom": 2,
-        "Tomteareal": "1391 (eiet)",
-        "Boligselgerforsikring": "Ja",
-        "Fellesformue": 127032,
-        "Formuesverdi": 796595,
-        "Prisantydning": 3790000,
+        "Byggeår": 1880,
+        "Eieform": "Eier (Selveier)",
+        "Eksternt bruksareal": "1 (BRA-e)",
+        "Energimerking": "G - Rød",
+        "Etasje": 2,
+        "Fellesformue": 40375,
+        "Fellesgjeld": 157595,
+        "Felleskost/mnd.": 3710,
+        "Formuesverdi": 809403,
+        "Internt bruksareal": "29 (BRA-i)",
+        "Omkostninger": 95568,
+        "Postadresse": "Kirkegårdsgata 5, 0558 Oslo",
+        "Prisantydning": 3245000,
+        "Rom": 1,
+        "Soverom": 1,
+        "Tomteareal": "271 (eiet)",
+        "Totalpris": 3498163,
+        "Visning 1": "2024-02-01T15:30:00",
+        "Visning 2": "2024-02-04T13:00:00",
+        "Visninger": ["2024-02-01T15:30:00", "2024-02-04T13:00:00"],
     }
