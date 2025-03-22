@@ -9,7 +9,7 @@ colorama==0.4.6 ; python_version >= "3.12" and python_version < "4.0" and platfo
 cssselect==1.2.0 ; python_version >= "3.12" and python_version < "4.0"
 fake-useragent==1.4.0 ; python_version >= "3.12" and python_version < "4.0"
 flask==3.0.1 ; python_version >= "3.12" and python_version < "4.0"
-gunicorn==21.2.0 ; python_version >= "3.12" and python_version < "4.0"
+gunicorn==23.0.0 ; python_version >= "3.12" and python_version < "4.0"
 idna==3.6 ; python_version >= "3.12" and python_version < "4.0"
 itsdangerous==2.1.2 ; python_version >= "3.12" and python_version < "4.0"
 jinja2==3.1.6 ; python_version >= "3.12" and python_version < "4.0"
