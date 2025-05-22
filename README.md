@@ -15,9 +15,8 @@ Hit the button below to create your own. You need a free Heroku account.
 ## Installation
 
 ```bash
-poetry install
 docker run -d -p 6379:6379 redis
-poetry run bin/run
+./bin/run
 xdg-open http://localhost:5000/
 ```
 

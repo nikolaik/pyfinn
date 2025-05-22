@@ -1,4 +1,4 @@
 #!/bin/bash
 set -eu
 
-black --check pyfinn tests
+uvx pre-commit run -a

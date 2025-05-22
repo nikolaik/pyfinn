@@ -1,4 +1,4 @@
 #!/bin/bash
 set -eu
 
-python -m pyfinn.api
+uv run -m pyfinn.api
