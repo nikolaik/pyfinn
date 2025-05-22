@@ -1,9 +1,8 @@
 from pyfinn import scrape_ad
-from requests_html import HTML
 
 
 def test_scrape_ad(ad_html):
-    res = scrape_ad(HTML(html=ad_html))
+    res = scrape_ad(ad_html)
     assert res
     assert res == {
         "Boligtype": "Leilighet",

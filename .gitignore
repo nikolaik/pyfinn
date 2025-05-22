@@ -4,3 +4,4 @@ test*.html
 dist/
 .env
 .venv/
+tmp/

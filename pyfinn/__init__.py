@@ -8,10 +8,10 @@ import sys
 from urllib import parse
 
 from fake_useragent import UserAgent
-from requests_html import HTMLSession, HTML
 
+from bs4 import BeautifulSoup
+import requests
 
-session = HTMLSession()
 ua = UserAgent()
 
 logger = logging.getLogger("pyfinn")
@@ -31,14 +31,14 @@ def _clean(text):
     return text
 
 
-def _parse_data_lists(html: HTML) -> dict:
+def _parse_data_lists(html: BeautifulSoup) -> dict:
     data = {}
     days = ["Man.", "Tir.", "Ons.", "Tors.", "Fre", "Lør.", "Søn."]
     skip_keys = ["Mobil", "Fax", ""] + days  # Unhandled data list labels
 
-    data_lists = html.find("dl")
+    data_lists = html.find_all("dl")
     for el in data_lists:
-        values_list = iter(el.find("dt, dd"))
+        values_list = iter(el.find_all(["dt", "dd"]))
         for a in values_list:
             _key = a.text
             a = next(values_list)
@@ -49,10 +49,12 @@ def _parse_data_lists(html: HTML) -> dict:
     return data
 
 
-def _scrape_viewings(html: HTML) -> list[str]:
-    # Find links to ICAL downloads
+def _scrape_viewings(html: BeautifulSoup) -> list[str]:
+    """Find links to iCal downloads and extract the date from the query string"""
     viewings = set()
-    calendar_url = [el.attrs["href"] for el in html.find('a[href*=".ics"]')]
+    anchors = html.find_all("a")
+    anchors_ics = [el for el in anchors if ".ics" in el.attrs.get("href", "")]
+    calendar_url = [el.attrs["href"] for el in anchors_ics]
     for url in calendar_url:
         query_params = dict(parse.parse_qsl(parse.urlsplit(url).query))
         dt = datetime.strptime(query_params["iCalendarFrom"][:-1], "%Y%m%dT%H%M%S")
@@ -67,15 +69,17 @@ def _calc_price(ad_data: dict) -> int:
     return ad_data["Totalpris"] - debt - cost
 
 
-def fetch_ad(url: str) -> HTML:
-    r = session.get(url, headers={"user-agent": ua.random})
+def fetch_ad(url: str) -> str:
+    r = requests.get(url, headers={"user-agent": ua.random})
     r.raise_for_status()
-    return r.html
+    return r.text
 
 
-def scrape_ad(html: HTML) -> dict:
-    postal_address_element = html.find('[data-testid="object-address"]', first=True)
+def scrape_ad(html_text: str) -> dict:
+    html = BeautifulSoup(html_text, "lxml")
+    postal_address_element = html.find(None, {"data-testid": "object-address"})
     if not postal_address_element:
+        logger.warning("Could not find postal address element in HTML")
         return {}
 
     ad_data = {
@@ -95,28 +99,37 @@ def scrape_ad(html: HTML) -> dict:
     return ad_data
 
 
-def main():
+class CLIArgs(argparse.Namespace):
+    code: str
+    html_file: io.TextIOWrapper | None
+
+
+def init_parser() -> CLIArgs:
     parser = argparse.ArgumentParser(description="Fetch real estate listing from finn.no and make available as JSON")
     parser.add_argument("code")
     parser.add_argument("--html-file", type=argparse.FileType())
-    args = parser.parse_args()
-    html_file: io.TextIOWrapper | None = args.html_file
-    code: str = args.code
+    return parser.parse_args()
 
-    url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={code}"
-    if html_file:
-        with html_file:
-            html_raw = html_file.read()
-            html = HTML(url=url, html=html_raw)
-    else:
-        html = fetch_ad(url)
 
+def main():
+    args = init_parser()
+
+    url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={args.code}"
+    html = read_or_fetch_html(args.html_file, url)
     ad_data = scrape_ad(html)
     if not ad_data:
         logger.warning("Could not find postal address element in HTML")
-    print(json.dumps({"url": url} | ad_data, indent=2, ensure_ascii=False))
+    print(json.dumps({"url": url} | ad_data, indent=2, ensure_ascii=False, sort_keys=True))
 
     return 0
+
+
+def read_or_fetch_html(html_file: io.TextIOWrapper | None, url: str):
+    if not html_file:
+        return fetch_ad(url)
+
+    with html_file:
+        return html_file.read()
 
 
 if __name__ == "__main__":

@@ -7,20 +7,20 @@ requires-python = "~=3.12"
 readme = "README.md"
 license = "MIT"
 dependencies = [
-    "requests-html",
+    "beautifulsoup4",
+    "fake-useragent",
     "flask",
     "gunicorn",
+    "lxml",
     "redis",
-    "fake-useragent",
-    "urllib3==2.*",
-    "lxml==5.1.0",
+    "requests",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest-socket",
     "pytest",
     "ruff",
-    "pytest-socket",
 ]
 
 [build-system]
