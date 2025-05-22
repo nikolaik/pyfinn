@@ -21,6 +21,7 @@ dev = [
     "pytest-socket",
     "pytest",
     "ruff",
+    "ty>=0.0.1a6",
 ]
 
 [build-system]

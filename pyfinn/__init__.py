@@ -108,7 +108,7 @@ def init_parser() -> CLIArgs:
     parser = argparse.ArgumentParser(description="Fetch real estate listing from finn.no and make available as JSON")
     parser.add_argument("code")
     parser.add_argument("--html-file", type=argparse.FileType())
-    return parser.parse_args()
+    return parser.parse_args(namespace=CLIArgs())
 
 
 def main():
