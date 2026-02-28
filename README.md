@@ -15,7 +15,7 @@ Hit the button below to create your own. You need a free Heroku account.
 ## Installation
 
 ```bash
-docker run -d -p 6379:6379 redis
+docker run -d -p 6379:6379 redis  # start redis in the background
 ./bin/run
 xdg-open http://localhost:5000/
 ```

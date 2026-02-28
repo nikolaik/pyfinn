@@ -1,11 +1,11 @@
+from pathlib import Path
 import argparse
-import io
 import json
 import logging
 import re
 from datetime import datetime
 import sys
-from urllib import parse
+from urllib.parse import parse_qsl, urlsplit
 
 from fake_useragent import UserAgent
 
@@ -49,6 +49,11 @@ def _parse_data_lists(html: BeautifulSoup) -> dict:
     return data
 
 
+def params_from_url(url: str) -> dict[str, str]:
+    query = urlsplit(url).query
+    return dict(parse_qsl(query))
+
+
 def _scrape_viewings(html: BeautifulSoup) -> list[str]:
     """Find links to iCal downloads and extract the date from the query string"""
     viewings = set()
@@ -56,7 +61,7 @@ def _scrape_viewings(html: BeautifulSoup) -> list[str]:
     anchors_ics = [el for el in anchors if ".ics" in el.attrs.get("href", "")]
     calendar_url = [el.attrs["href"] for el in anchors_ics]
     for url in calendar_url:
-        query_params = dict(parse.parse_qsl(parse.urlsplit(url).query))
+        query_params = params_from_url(url)
         dt = datetime.strptime(query_params["iCalendarFrom"][:-1], "%Y%m%dT%H%M%S")
         if dt:
             viewings.add(dt.isoformat())
@@ -101,13 +106,13 @@ def scrape_ad(html_text: str) -> dict:
 
 class CLIArgs(argparse.Namespace):
     code: str
-    html_file: io.TextIOWrapper | None
+    html_file: Path | None
 
 
 def init_parser() -> CLIArgs:
     parser = argparse.ArgumentParser(description="Fetch real estate listing from finn.no and make available as JSON")
     parser.add_argument("code")
-    parser.add_argument("--html-file", type=argparse.FileType())
+    parser.add_argument("--html-file", type=Path, help="Path to HTML file to parse instead of fetching from the web")
     return parser.parse_args(namespace=CLIArgs())
 
 
@@ -115,21 +120,19 @@ def main():
     args = init_parser()
 
     url = f"https://www.finn.no/realestate/homes/ad.html?finnkode={args.code}"
-    html = read_or_fetch_html(args.html_file, url)
+    if args.html_file:
+        logger.info(f"Reading HTML from file: {args.html_file}")
+        html = args.html_file.read_text(encoding="utf-8")
+    else:
+        logger.info(f"Fetching HTML from URL: {url}")
+        html = fetch_ad(url)
+
     ad_data = scrape_ad(html)
     if not ad_data:
         logger.warning("Could not find postal address element in HTML")
     print(json.dumps({"url": url} | ad_data, indent=2, ensure_ascii=False, sort_keys=True))
 
     return 0
-
-
-def read_or_fetch_html(html_file: io.TextIOWrapper | None, url: str):
-    if not html_file:
-        return fetch_ad(url)
-
-    with html_file:
-        return html_file.read()
 
 
 if __name__ == "__main__":
