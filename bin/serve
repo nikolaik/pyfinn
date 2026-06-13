@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+
+exec uv run gunicorn src.pyfinn.api:app $@
